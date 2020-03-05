@@ -5,13 +5,13 @@ library(deckgl)
 library(feather)
 library(tidyverse)
 
-yourSuperSecretApiToken <- "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA"
+yourSuperSecretApiToken <- 
 does_it_work()
 
 #> You should see a text layer telling you that it works.
 
 # Or in case you do have an api token from mapbox ...
-does_it_work(token = "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA")
+does_it_work(token = "")
 does_it_work(yourSuperSecretApiToken)
 
 #> Output should be the same as above but rendered on top of a base map from mapbox.
@@ -23,7 +23,7 @@ deckgl() %>%
   add_mapbox_basemap(yourSuperSecretApiToken) # optional
 
 # This Will Set MB Token for One Session
-Sys.setenv(MAPBOX_API_TOKEN = "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA")
+Sys.setenv(MAPBOX_API_TOKEN = "")
 
 # This is the Style we need. 
 
