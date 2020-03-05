@@ -2,6 +2,9 @@
 # * DeckGL Vignette -------------------------------------------------------
 
 library(deckgl)
+library(feather)
+library(tidyverse)
+
 yourSuperSecretApiToken <- "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA"
 does_it_work()
 
@@ -19,13 +22,13 @@ deckgl() %>%
   add_hexagon_layer(data = NULL) %>%
   add_mapbox_basemap(yourSuperSecretApiToken) # optional
 
+# This Will Set MB Token for One Session
 Sys.setenv(MAPBOX_API_TOKEN = "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA")
 
-Sys.setenv(MAPBOX_API_TOKEN = "yourSuperSecretApiToken")
+# This is the Style we need. 
 
 deckgl() %>%
   add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9")
-
 
 # Grid layer example
 
@@ -111,9 +114,10 @@ deckgl(longitude = center$long, latitude = center$lat, zoom = 3) %>%
     getSize = 3.5,
     sizeScale = 15
   ) %>%
-  add_mapbox_basemap()
+  add_mapbox_basemap(token = yourSuperSecretApiToken)
 
-source("src.R")
+
+dat <- read_feather(here::here("00_data", "geolocated_performers_dt.feather"))
 
 dat <- dat %>% 
   rename(
@@ -132,15 +136,21 @@ dat <-  dat %>%
     to_name = rep("CH", nrow(.))
   )
 
+dat <- dat %>% 
+  mutate(
+    tooltip = str_c(name, "Born in: ", from_name)
+  )
+
 properties = list(
       pickable = TRUE,
-      getStrokeWidth = 12,
+      getStrokeWidth = 2,
       cellSize = 200,
       elevationScale = 4,
-      getSourcePosition = get_property("from.coordinates"),
-      getTargetPosition = get_property("to.coordinates"),
+      getSourcePosition = get_position("from_lat", "from_lon"),
+      getTargetPosition = get_position("to_lat", "to_lon"),
       getSourceColor = JS("d => [Math.sqrt(d.inbound), 140, 0]"),
-      getTargetColor = JS("d => [Math.sqrt(d.outbound), 140, 0]")
+      getTargetColor = JS("d => [Math.sqrt(d.outbound), 140, 0]"),
+      getTooltip = get_property(tooltip)
     )
 
 deckgl(
@@ -149,12 +159,25 @@ deckgl(
   zoom = 11, 
   pitch = 0
   ) %>% 
-  add_mapbox_basemap() %>%   
+  add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9") %>%   
   add_arc_layer(
     data = dat,
     id = 'arc-layer',
     properties = properties
     )
+
+deckgl(
+  latitude = 40.7,
+  longitude = -74,
+  zoom = 11, 
+  pitch = 0
+) %>% 
+  add_mapbox_basemap() %>%   
+  add_arc_layer(
+    data = dat,
+    id = 'arc-layer',
+    properties = properties
+  )
 
 # const layer = new ArcLayer({
 #   id: 'arc-layer',
@@ -189,6 +212,7 @@ properties <- list(
   getTooltip = JS("object => `${object.from.name} to ${object.to.name}`")
 )
 
+
 deck <- deckgl(zoom = 10, pitch = 35) %>%
   add_arc_layer(data = sample_data, properties = properties) %>%
   add_mapbox_basemap()
@@ -212,3 +236,6 @@ df <- readRDS(sample_data)
 require(jsonlite)
 
 
+test <- toJSON(dat)
+
+dat %>% slice(1) %>% toJSON()
