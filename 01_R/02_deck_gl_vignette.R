@@ -23,7 +23,7 @@ deckgl() %>%
   add_mapbox_basemap(yourSuperSecretApiToken) # optional
 
 # This Will Set MB Token for One Session
-Sys.setenv(MAPBOX_API_TOKEN = "")
+Sys.setenv(MAPBOX_API_TOKEN = "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA")
 
 # This is the Style we need. 
 
@@ -138,8 +138,20 @@ dat <-  dat %>%
 
 dat <- dat %>% 
   mutate(
-    tooltip = str_c(name, "Born in: ", from_name)
+    tooltip = str_c(name, " Born in: ", from_name)
+  ) %>% 
+  mutate(
+    ch_color = "#F7002B",
+    from_color = case_when(
+      `continent code` == "AF" ~ "#8F9DCB",
+      `continent code` == "AS" ~ "#DBA8AF",
+      `continent code` == "EU" ~ "#f9f6f7",
+      `continent code` == "NA" ~ "#1DA3CA",
+      `continent code` == "OC" ~ "#BF346B",
+      `continent code` == "SA" ~ "#767969"
+    )
   )
+
 
 properties = list(
       pickable = TRUE,
@@ -148,9 +160,11 @@ properties = list(
       elevationScale = 4,
       getSourcePosition = get_position("from_lat", "from_lon"),
       getTargetPosition = get_position("to_lat", "to_lon"),
-      getSourceColor = JS("d => [Math.sqrt(d.inbound), 140, 0]"),
-      getTargetColor = JS("d => [Math.sqrt(d.outbound), 140, 0]"),
-      getTooltip = get_property(tooltip)
+      # getSourceColor = JS("d => [Math.sqrt(d.inbound), 140, 0]"),
+      # getTargetColor = JS("d => [Math.sqrt(d.outbound), 140, 0]"),
+      getTargetColor = get_color_to_rgb_array("ch_color"),
+      getSourceColor = get_color_to_rgb_array("from_color"),
+      getTooltip = get_property("tooltip")
     )
 
 deckgl(
@@ -165,6 +179,15 @@ deckgl(
     id = 'arc-layer',
     properties = properties
     )
+
+hex_dat <- dat %>% 
+  group_by(from_name) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  left_join(., dat, by = "from_name") %>% 
+  distinct(from_name, .keep_all = TRUE) %>% 
+  select(from_name, n, from_lat, from_lon, from_color, ch_color)
+
 
 deckgl(
   latitude = 40.7,
@@ -239,3 +262,89 @@ require(jsonlite)
 test <- toJSON(dat)
 
 dat %>% slice(1) %>% toJSON()
+
+
+# * Hex Example -----------------------------------------------------------
+
+sample_data <- paste0(
+  "https://raw.githubusercontent.com/",
+  "uber-common/deck.gl-data/",
+  "master/website/sf-bike-parking.json"
+)
+
+properties <- list(
+  extruded = TRUE,
+  radius = 200,
+  elevationScale = 4,
+  getPosition = get_property("COORDINATES"),
+  getTooltip = JS("object => `${object.centroid.join(', ')}<br/>Count: ${object.points.length}`"),
+  fixedTooltip = TRUE
+)
+
+deck <- deckgl(zoom = 11, pitch = 45, bearing = 35) %>%
+  add_hexagon_layer(data = sample_data, properties = properties) %>%
+  add_mapbox_basemap()
+
+if (interactive()) deck
+
+
+properties <- list(
+  extruded = TRUE,
+  radius = 10000,
+  elevationScale = 4,
+  getPosition = get_position("from_lat", "from_lon"),
+  getTooltip = JS("object => `${object.centroid.join(', ')}<br/>Count: ${object.points.length}`"),
+  fixedTooltip = TRUE
+)
+
+deckgl(zoom = 11, bearing = 35) %>%
+  add_hexagon_layer(data = dat, properties = properties) %>%
+  add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9")
+
+deckgl() %>%
+  add_hexagon_layer(data = dat, properties = properties) %>%
+  add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9")
+
+
+
+# * Scatterplot Example ---------------------------------------------------
+bart_stations <- paste0(
+  "https://raw.githubusercontent.com/",
+  "uber-common/deck.gl-data/",
+  "master/website/bart-stations.json"
+)
+
+properties <- list(
+  getPosition = get_property("coordinates"),
+  getRadius = JS("data => Math.sqrt(data.exits)"),
+  radiusScale = 6,
+  getColor = c(255, 140, 20)
+)
+
+deck <- deckgl(zoom = 10.5, pitch = 35) %>%
+  add_scatterplot_layer(data = bart_stations, properties = properties) %>%
+  add_mapbox_basemap()
+
+if (interactive()) deck
+
+properties <- list(
+  getPosition = get_position("from_lat", "from_lon"),
+  getRadius = JS("data => Math.sqrt(data.exits)"),
+  radiusScale = 1000,
+  getColor = get_color_to_rgb_array("from_color"),
+  getTooltip = get_property("tooltip")
+)
+
+deckgl(
+  latitude = 40.7,
+  longitude = -74,
+  zoom = 11, 
+  pitch = 0
+  ) %>% 
+  add_scatterplot_layer(
+    data = dat, 
+    properties = properties
+  ) %>% 
+  add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9")
+
+
