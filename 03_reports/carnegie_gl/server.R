@@ -6,11 +6,24 @@
 #
 #    http://shiny.rstudio.com/
 #
+source("src.R")
+pal <- colorFactor(
+    c("#8F9DCB", 
+      "#DBA8AF", 
+      "#BF346B", 
+      "#f9f6f7", 
+      "#1DA3CA", 
+      "#767969"
+      ), 
+    m$region
+    )
 
 library(shiny)
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
+    
+    rv <- reactiveValues()
 
     output$arc_map <- renderDeckgl({
 
@@ -79,5 +92,83 @@ shinyServer(function(input, output) {
             add_hexagon_layer(data = dat, properties = properties) %>%
             add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9")
     })
+    
+    # Input Map ---------------------------------------------
+    
+    output$selectmap <- renderLeaflet({
+        
+        leaflet(m,
+                options = leafletOptions(
+                    zoomControl = FALSE,
+                    dragging = FALSE,
+                    minZoom = 0,
+                    maxZoom = 0)
+        ) %>%
+            addPolygons(layerId = ~region,
+                        fillColor = ~pal(region),
+                        fillOpacity = 1,
+                        color = "black",
+                        stroke = F,
+                        highlight = highlightOptions(
+                            fillOpacity = .5,
+                            bringToFront = TRUE))
+    })
+    
+    output$`filtered-map` <- renderDeckgl({
+
+        properties = list(
+            pickable = TRUE,
+            getStrokeWidth = 2,
+            cellSize = 200,
+            elevationScale = 4,
+            getSourcePosition = get_position("from_lat", "from_lon"),
+            getTargetPosition = get_position("to_lat", "to_lon"),
+            getTargetColor = get_color_to_rgb_array("ch_color"),
+            getSourceColor = get_color_to_rgb_array("from_color"),
+            getTooltip = get_property("tooltip")
+        )
+
+        deckgl(
+            latitude = 40.7,
+            longitude = -74,
+            zoom = 11,
+            pitch = 0
+        ) %>%
+            add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9") %>%
+            add_arc_layer(
+                data = cont_dat,
+                id = 'arc-layer',
+                properties = properties
+            )
+    })
+    
+    observe({
+        click <- input$selectmap_shape_click
+        
+        if (is.null(click)) return()
+        
+        updateSelectizeInput(session, "continent",
+                             selected = click$id)
+    })
+    
+    # Respond to Input -------------------------------------------------
+    
+    observeEvent(c(input$continent, input$main_tabs), {
+        print("triggered Observe")
+        leafletProxy("selectmap", session) %>%
+            removeShape("selected") %>% 
+            addPolylines(data = filter(m, region == input$continent),
+                         layerId = "selected",
+                         color = "black",
+                         weight = 3)
+    
+        
+    # * data prep ----------------------------------------
+        
+    rv$cont_dat <- filter(dat, region %in% input$continent)    
+    
+    
+    })    
+    
 
 })

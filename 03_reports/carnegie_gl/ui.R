@@ -9,7 +9,7 @@
 source("src.R")
 library(shiny)
 
-
+ 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
     theme = shinytheme("darkly"),
@@ -44,8 +44,32 @@ shinyUI(fluidPage(
                     width = "100%",
                     height = "800px"
                 )
+            ),
+            tabPanel(
+                "Redux",
+                sidebarPanel(
+                    wellPanel(
+                        h4("Continent:"),
+                        leafletOutput("selectmap", height = 200),
+                        selectizeInput(
+                            inputId = "continent",
+                            label = NULL,
+                            choices = m$region,
+                            selected = NULL
+                            )
+                        )
+                    )
+                # mainPanel(
+                #     deckglOutput(
+                #         "filtered-map",
+                #         width = "100%",
+                #         height = "800px"
+                #     )
+                # )
+            )
+                
             )
         )
     )
 )
-)
+
