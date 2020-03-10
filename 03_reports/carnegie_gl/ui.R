@@ -46,11 +46,13 @@ shinyUI(fluidPage(
                 )
             ),
             tabPanel(
-                "Redux",
-                sidebarPanel(
-                    wellPanel(
-                        h4("Continent:"),
-                        leafletOutput("selectmap", height = 200),
+                "Filtered by Continent",
+                fluidRow(
+                    column(
+                        4,
+                        wellPanel(
+                            h4("Continent:"),
+                            leafletOutput("selectmap", height = 200),
                         selectizeInput(
                             inputId = "continent",
                             label = NULL,
@@ -58,18 +60,18 @@ shinyUI(fluidPage(
                             selected = NULL
                             )
                         )
+                    ),
+                    column(
+                        8,
+                        deckglOutput(
+                            "filtered-map",
+                            width = "auto",
+                            height = "800px"
                     )
-                # mainPanel(
-                #     deckglOutput(
-                #         "filtered-map",
-                #         width = "100%",
-                #         height = "800px"
-                #     )
-                # )
+                )
             )
-                
-            )
+        )
         )
     )
 )
-
+)

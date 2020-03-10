@@ -24,6 +24,40 @@ library(shiny)
 shinyServer(function(input, output, session) {
     
     rv <- reactiveValues()
+    
+    observeEvent(input$continent, {
+        rv$map_dat <- filter(dat, region %in% input$continent) 
+        
+        output$`filtered-map` <- renderDeckgl({
+            
+            properties = list(
+                pickable = TRUE,
+                getStrokeWidth = 2,
+                cellSize = 200,
+                elevationScale = 4,
+                getSourcePosition = get_position("from_lat", "from_lon"),
+                getTargetPosition = get_position("to_lat", "to_lon"),
+                getTargetColor = get_color_to_rgb_array("ch_color"),
+                getSourceColor = get_color_to_rgb_array("from_color"),
+                getTooltip = get_property("tooltip")
+            )
+            
+            deckgl(
+                latitude = 40.7,
+                longitude = -74,
+                zoom = 11,
+                pitch = 0
+            ) %>%
+                add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9") %>%
+                add_arc_layer(
+                    data = rv$map_dat,
+                    id = 'arc-layer',
+                    properties = properties
+                )
+        })
+        
+        
+    })
 
     output$arc_map <- renderDeckgl({
 
@@ -114,33 +148,33 @@ shinyServer(function(input, output, session) {
                             bringToFront = TRUE))
     })
     
-    output$`filtered-map` <- renderDeckgl({
-
-        properties = list(
-            pickable = TRUE,
-            getStrokeWidth = 2,
-            cellSize = 200,
-            elevationScale = 4,
-            getSourcePosition = get_position("from_lat", "from_lon"),
-            getTargetPosition = get_position("to_lat", "to_lon"),
-            getTargetColor = get_color_to_rgb_array("ch_color"),
-            getSourceColor = get_color_to_rgb_array("from_color"),
-            getTooltip = get_property("tooltip")
-        )
-
-        deckgl(
-            latitude = 40.7,
-            longitude = -74,
-            zoom = 11,
-            pitch = 0
-        ) %>%
-            add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9") %>%
-            add_arc_layer(
-                data = cont_dat,
-                id = 'arc-layer',
-                properties = properties
-            )
-    })
+    # output$`filtered-map` <- renderDeckgl({
+    # 
+    #     properties = list(
+    #         pickable = TRUE,
+    #         getStrokeWidth = 2,
+    #         cellSize = 200,
+    #         elevationScale = 4,
+    #         getSourcePosition = get_position("from_lat", "from_lon"),
+    #         getTargetPosition = get_position("to_lat", "to_lon"),
+    #         getTargetColor = get_color_to_rgb_array("ch_color"),
+    #         getSourceColor = get_color_to_rgb_array("from_color"),
+    #         getTooltip = get_property("tooltip")
+    #     )
+    # 
+    #     deckgl(
+    #         latitude = 40.7,
+    #         longitude = -74,
+    #         zoom = 11,
+    #         pitch = 0
+    #     ) %>%
+    #         add_mapbox_basemap(style = "mapbox://styles/mapbox/dark-v9") %>%
+    #         add_arc_layer(
+    #             data = cont_dat,
+    #             id = 'arc-layer',
+    #             properties = properties
+    #         )
+    # })
     
     observe({
         click <- input$selectmap_shape_click
@@ -165,7 +199,7 @@ shinyServer(function(input, output, session) {
         
     # * data prep ----------------------------------------
         
-    rv$cont_dat <- filter(dat, region %in% input$continent)    
+    cont_dat <- filter(dat, region %in% input$continent)    
     
     
     })    
