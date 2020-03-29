@@ -1,0 +1,24 @@
+
+continent = Europe
+lat = 53.5775, 
+lon = 23.106111
+
+continent = Oceania
+lat = -24.25, 
+lon = 133.41666666666666
+
+continent = North America
+lat = 48.367222222222225, 
+lon = -99.9961111111111
+
+continent = South America
+lat = -15.6006, 
+lon = -56.1004
+
+continent = Asia
+lat = 43.68111111111111, 
+lon = 87.33111111111111
+
+continent = Africa
+lat = 5.65, 
+lon = 26.17

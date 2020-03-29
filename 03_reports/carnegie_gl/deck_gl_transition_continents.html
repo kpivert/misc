@@ -1,0 +1,104 @@
+<html>
+  <head>
+    <title>deck.gl Viewport Transition Example</title>
+
+    <script src="https://unpkg.com/deck.gl@^7.0.0/dist.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js"></script>
+
+    <style type="text/css">
+      body {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+      }
+
+      #control-panel {
+        font-size: 12px;
+        font-family: Helvetica, Arial, sans-serif;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 12px;
+        padding: 20px;
+        line-height: 2;
+        z-index: 1;
+        background: #fff;
+        border: solid 1px #ccc;
+        border-bottom-color: #bbb;
+        border-radius: 3px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div id="control-panel">
+    </div>
+  </body>
+
+  <script type="text/javascript">
+
+    const {DeckGL, ScatterplotLayer, FlyToInterpolator} = deck;
+
+    // Data
+    const CONTINENTS = [
+      {"continent":"Europe", "latitude":53.5775,"longitude":23.106111},
+      {"continent":"Oceania","latitude":-24.25,"longitude":133.41666666666666},
+      {"continent":"North America","latitude":48.367222222222225,"longitude":-99.9961111111111},
+      {"continent":"South America","latitude":-15.6006,"longitude":-56.1004},
+      {"continent":"Asia","latitude":43.68111111111111,"longitude":87.33111111111111},
+      {"continent":"Africa","latitude":5.65,"longitude":26.17}
+    ];
+
+    // Deck canvas
+    const deckgl = new DeckGL({
+      mapboxApiAccessToken: "pk.eyJ1Ijoia3BpdmVydCIsImEiOiJjazc2dWc4YTUwMHp6M2tvNWIyYTQyaXNnIn0.MmXD8-ud_HmuDffvJMotVA",
+      mapStyle: 'mapbox://styles/mapbox/light-v9',
+      viewState: {
+        longitude: CONTINENTS[0].longitude,
+        latitude: CONTINENTS[0].latitude,
+        zoom: 3
+      },
+      layers: [
+        new ScatterplotLayer({
+          data: CONTINENTS,
+          getPosition: d => [d.longitude, d.latitude],
+          getColor: [255, 180, 0],
+          radiusMinPixels: 10
+        })
+      ]
+    });
+
+    // Create radio buttons
+    const inputs = d3.select('#control-panel').selectAll('div')
+      .data(CONTINENTS)
+      .enter().append('div');
+
+    inputs.append('input')
+      .attr('type', 'radio')
+      .attr('name', 'continent')
+      .attr('id', (d, i) => 'continent-' + i)
+      .on('change', d => {
+        deckgl.setProps({
+          viewState: {
+            longitude: d.longitude,
+            latitude: d.latitude,
+            zoom: 3,
+            transitionInterpolator: new FlyToInterpolator(),
+            transitionDuration: 5000
+          }
+        })
+      });
+
+    inputs.append('label')
+      .attr('for', (d, i) => 'continent-' + i)
+      .text(d => d.continent);
+
+    // Default select the first continent
+    inputs.select('input').node().checked = true;
+
+  </script>
+</html>
