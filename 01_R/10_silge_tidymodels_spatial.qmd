@@ -1,0 +1,183 @@
+---
+title: "Spatial Resampling by Julia Silge"
+format:
+  html:
+    theme: default
+---
+
+```{r}
+require(tidyverse)
+require(extrafont)
+loadfonts(quiet = TRUE)
+require(silgelib)
+require(tidycensus)
+require(tidymodels)
+require(spatialsample)
+
+```
+
+```{r}
+theme_set(
+  theme_light(
+    base_size = 12, 
+    base_family = "Arial"
+  )
+)
+
+update_geom_defaults(
+  "rect",
+  list(
+    fill = "midnightblue",
+    alpha = 0.8
+  )
+)
+
+```
+
+Our modeling goal is to use resampling to understand how [drought](https://github.com/rfordatascience/tidytuesday/tree/master/data/2022/2022-06-14) is relateed to another characteristic in TX, like perhaps income. 
+
+## Explore Data 
+
+```{r}
+drought_raw <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-06-14/drought-fips.csv")
+```
+
+## Visualizing Drought in TX
+
+```{r}
+drought_raw %>% glimpse()
+
+drought_raw %>% skimr::skim()
+
+```
+
+```{r}
+
+drought <- drought_raw %>% 
+  filter(
+    State == "TX",
+    lubridate::year(date) == 2021
+    ) %>% 
+  group_by(FIPS) %>% 
+  summarise(DSCI = mean(DSCI))
+
+```
+
+## Visualizing drought in TX 
+
+Median household income from US Census: B19013_001
+
+```{r}
+
+tx_median_income <- 
+  get_acs(
+    geography = "county",
+    state = "TX",
+    variables = "B19013_001",
+    year = 2020, 
+    geometry = TRUE
+)
+
+```
+
+
+```{r}
+drought_sf <- 
+  tx_median_income %>% 
+    left_join(
+      drought,
+      by = c("GEOID" = "FIPS"))
+
+```
+
+
+```{r}
+
+drought_sf %>% 
+  ggplot(
+    aes(fill = DSCI)
+  ) +
+  geom_sf(
+    alpha = 0.9, 
+    color = NA
+  ) +
+  scale_fill_viridis_c() +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+drought_sf %>% 
+  ggplot(
+    aes(
+      x = DSCI, 
+      y = estimate
+      )
+    ) +
+  geom_point(alpha = 0.8, size = 2) +
+  geom_smooth(method = "lm")
+```
+
+## Build a Model
+
+```{r}
+set.seed(123)
+folds <- spatial_block_cv(drought_sf, v = 10)
+folds
+```
+
+
+```{r}
+autoplot(folds)
+```
+```{r}
+autoplot(folds$splits[[9]])
+```
+
+```{r}
+drought_result <- 
+  workflow(estimate ~ DSCI, linear_reg()) %>% 
+  fit_resamples(folds, control = control_resamples(save_pred = TRUE))
+
+```
+
+```{r}
+collect_predictions(drought_result)
+```
+
+## Mapping modeling results
+
+```{r}
+drought_rmse <- 
+  drought_sf %>% 
+    mutate(.row = row_number()) %>% 
+    left_join(collect_predictions(drought_result)) %>% 
+    group_by(GEOID) %>% 
+    rmse(estimate, .pred) %>% 
+    select(GEOID, .estimate)
+
+```
+
+```{r}
+drought_sf %>% 
+  left_join(drought_rmse) %>% 
+  ggplot(
+    aes(
+      fill = .estimate
+      )
+    ) +
+    geom_sf(
+      color = NA, 
+      alpha = 0.8
+    ) +
+  labs(
+    fill = "RMSE"
+  ) +
+  scale_fill_viridis_c(
+    labels = scales::dollar
+  )
+
+```
+
