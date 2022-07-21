@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="generator" content="quarto-0.3.69">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Intro to Mixed Effects Modeling</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+
+  <script src="01_mixed_effects_files/libs/clipboard/clipboard.min.js"></script>
+  <script src="01_mixed_effects_files/libs/quarto-html/quarto.js"></script>
+  <script src="01_mixed_effects_files/libs/quarto-html/popper.min.js"></script>
+  <script src="01_mixed_effects_files/libs/quarto-html/tippy.umd.min.js"></script>
+  <script src="01_mixed_effects_files/libs/quarto-html/anchor.min.js"></script>
+  <link href="01_mixed_effects_files/libs/quarto-html/tippy.css" rel="stylesheet">
+  <link href="01_mixed_effects_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+  <script src="01_mixed_effects_files/libs/bootstrap/bootstrap.min.js"></script>
+  <link href="01_mixed_effects_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+  <link href="01_mixed_effects_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc">
+<h2 id="toc-title">Table of contents</h2>
+<ul>
+<li><a href="#intro-to-mixed-effects-modeling" class="nav-link active" data-scroll-target="#intro-to-mixed-effects-modeling"> <span class="header-section-number">1</span> Intro to Mixed Effects Modeling</a>
+<ul class="collapse">
+<li><a href="#mixed-effects-aka-multilevel-models" class="nav-link" data-scroll-target="#mixed-effects-aka-multilevel-models"> <span class="header-section-number">1.1</span> Mixed Effects aka Multilevel Models:</a></li>
+</ul></li>
+<li><a href="#data-prep" class="nav-link" data-scroll-target="#data-prep"> <span class="header-section-number">2</span> Data Prep</a>
+<ul class="collapse">
+<li><a href="#viz" class="nav-link" data-scroll-target="#viz"> <span class="header-section-number">2.0.1</span> Viz</a></li>
+</ul></li>
+<li><a href="#model-with-lme4" class="nav-link" data-scroll-target="#model-with-lme4"> <span class="header-section-number">3</span> Model with <code>lme4</code></a>
+<ul class="collapse">
+<li><a href="#view-individual-random-effects" class="nav-link" data-scroll-target="#view-individual-random-effects"> <span class="header-section-number">3.0.1</span> View Individual Random Effects</a></li>
+</ul></li>
+<li><a href="#running-with-tidymodels" class="nav-link" data-scroll-target="#running-with-tidymodels"> <span class="header-section-number">4</span> Running with Tidymodels</a>
+<ul class="collapse">
+<li><a href="#build-model" class="nav-link" data-scroll-target="#build-model"> <span class="header-section-number">4.0.1</span> Build Model</a></li>
+</ul></li>
+<li><a href="#more-applications" class="nav-link" data-scroll-target="#more-applications"> <span class="header-section-number">5</span> More Applications</a>
+<ul class="collapse">
+<li><a href="#viz-showing-clusters" class="nav-link" data-scroll-target="#viz-showing-clusters"> <span class="header-section-number">5.0.1</span> Viz Showing Clusters</a></li>
+</ul></li>
+<li><a href="#varying-slopes" class="nav-link" data-scroll-target="#varying-slopes"> <span class="header-section-number">6</span> Varying Slopes</a></li>
+<li><a href="#resources" class="nav-link" data-scroll-target="#resources"> <span class="header-section-number">7</span> Resources</a></li>
+<li><a href="#this-was-intended-to-be-a-beginners-guide-to-mixed-effects-modeling-with-a-simple-example.-for-more-details-both-technical-and-theoretical-i-found-all-of-the-following-resources-helpful" class="nav-link" data-scroll-target="#this-was-intended-to-be-a-beginners-guide-to-mixed-effects-modeling-with-a-simple-example.-for-more-details-both-technical-and-theoretical-i-found-all-of-the-following-resources-helpful"> <span class="header-section-number">8</span> This was intended to be a beginner’s guide to mixed effects modeling with a simple example. For more details, both technical and theoretical, I found all of the following resources helpful:</a></li>
+</ul>
+</nav>
+</div>
+<main class="content">
+<header id="title-block-header">
+<h1 class="title display-7">Intro to Mixed Effects Modeling</h1>
+</header>
+
+<section id="intro-to-mixed-effects-modeling" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Intro to Mixed Effects Modeling</h1>
+<p>From: <a href="https://meghan.rbind.io/blog/2022-06-28-a-beginner-s-guide-to-mixed-effects-models/" class="uri">https://meghan.rbind.io/blog/2022-06-28-a-beginner-s-guide-to-mixed-effects-models/</a></p>
+<section id="mixed-effects-aka-multilevel-models" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="mixed-effects-aka-multilevel-models"><span class="header-section-number">1.1</span> Mixed Effects aka Multilevel Models:</h2>
+<ul>
+<li><p>Linear Regression Modeling assumes observations are independent of each other</p></li>
+<li><p>Longitudinal Data Does Not Meet That Assumption—Good Use of mixed effects models</p>
+<ul>
+<li>e.g., Player’s performance this year is not independent of last year’s performance</li>
+</ul></li>
+<li><p>Mixed effects models contain both fixed and random effects.</p>
+<ul>
+<li><p><strong>Fixed:</strong></p>
+<ul>
+<li>Explanatory/Independent Variables Assumed to have effect on response/dependent variable</li>
+</ul></li>
+<li><p><strong>Random:</strong></p>
+<ul>
+<li>Allow to skirt past independence assumption</li>
+<li>Categorical variables interested in controlling for, even if not interested in quantifying impacts of or knowing about specific levels, because we know they’re likely influencing patterns that might emerge</li>
+<li>Variable often has many possible levels, and likely just a sample of population in data</li>
+<li>e.g., in this example random effect is <strong>player</strong></li>
+</ul></li>
+</ul></li>
+</ul>
+<div class="cell">
+<div class="sourceCode" id="cb1"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 01 Packages -----</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(lme4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stderr">
+<pre><code>Loading required package: lme4</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>Loading required package: Matrix</code></pre>
+</div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stderr">
+<pre><code>Loading required package: tidymodels</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 0.2.0 ──</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>✔ broom        1.0.0     ✔ recipes      1.0.1
+✔ dials        1.0.0     ✔ rsample      1.0.0
+✔ dplyr        1.0.9     ✔ tibble       3.1.7
+✔ ggplot2      3.3.6     ✔ tidyr        1.2.0
+✔ infer        1.0.2     ✔ tune         1.0.0
+✔ modeldata    1.0.0     ✔ workflows    1.0.0
+✔ parsnip      1.0.0     ✔ workflowsets 0.2.1
+✔ purrr        0.3.4     ✔ yardstick    1.0.0</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ purrr::discard()  masks scales::discard()
+✖ tidyr::expand()   masks Matrix::expand()
+✖ dplyr::filter()   masks stats::filter()
+✖ dplyr::lag()      masks stats::lag()
+✖ tidyr::pack()     masks Matrix::pack()
+✖ recipes::step()   masks stats::step()
+✖ tidyr::unpack()   masks Matrix::unpack()
+✖ recipes::update() masks Matrix::update(), stats::update()
+• Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
+</div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stderr">
+<pre><code>Loading required package: tidyverse</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>✔ readr   2.1.2     ✔ forcats 0.5.1
+✔ stringr 1.4.0     </code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ readr::col_factor() masks scales::col_factor()
+✖ purrr::discard()    masks scales::discard()
+✖ tidyr::expand()     masks Matrix::expand()
+✖ dplyr::filter()     masks stats::filter()
+✖ stringr::fixed()    masks recipes::fixed()
+✖ dplyr::lag()        masks stats::lag()
+✖ tidyr::pack()       masks Matrix::pack()
+✖ readr::spec()       masks yardstick::spec()
+✖ tidyr::unpack()     masks Matrix::unpack()</code></pre>
+</div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(multilevelmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stderr">
+<pre><code>Loading required package: multilevelmod</code></pre>
+</div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(jtools)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stderr">
+<pre><code>Loading required package: jtools</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>
+Attaching package: 'jtools'</code></pre>
+</div>
+<div class="cell-output-stderr">
+<pre><code>The following object is masked from 'package:yardstick':
+
+    get_weights</code></pre>
+</div>
+</div>
+<p><em>In this example, given the repeated observations, I want to allow for the possibility that there is some type of individual player effect that is not measured by my other (independent, fixed) variables. I’m not particularly interested in quantifying the effect of “being Player X” on scoring rate, <strong>I just want to address that the effect exists.</strong> (In contrast, I am interested in the effect of position and the effect of time on ice, our two fixed variables.)</em></p>
+<p><em>For example, Connor Brown and Auston Matthews are both forwards who averaged around 20 minutes per game last year. By the two fixed effects included in this very small model, they would produce a very similar response variable. But as anyone who watches hockey can tell you, Auston Matthews is much more offensively talented than Connor Brown, and in this model, the random effect of the player will address some of that. Random effects are useful for capturing the impact of persistent characteristics that might not be observable elsewhere in the explanatory data. In this example, it can be thought of as a proxy for player “talent” in a way.</em></p>
+<p><strong><em>If those random effects are correlated with variables of interest, leaving them out could lead to biased fixed effects. Including them can help more reliably isolate the influence of the fixed effects of interest and more accurately model a clustered system.</em></strong></p>
+</section>
+</section>
+<section id="data-prep" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data Prep</h1>
+<div class="cell">
+<div class="sourceCode" id="cb20"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/meghall06/personal-website/master/content/blog/2022-06-28-a-beginner-s-guide-to-mixed-effects-models/mixed_model.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stderr">
+<pre><code>Rows: 80 Columns: 5
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (2): player, position
+dbl (3): season, pp60, toi
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<section id="viz" class="level3" data-number="2.0.1">
+<h3 data-number="2.0.1" class="anchored" data-anchor-id="viz"><span class="header-section-number">2.0.1</span> Viz</h3>
+<div class="cell">
+<div class="sourceCode" id="cb22"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  data_raw,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> season,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> pp60,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> toi,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">group =</span> player</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_c</span>(<span class="at">option =</span> <span class="st">"plasma"</span>) <span class="sc">+</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> position) <span class="sc">+</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01_mixed_effects_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode" id="cb23"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  data_raw <span class="sc">|&gt;</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">position =</span> <span class="fu">factor</span>(position)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="model-with-lme4" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Model with <code>lme4</code></h1>
+<p>The simplest version of a mixed effects model uses random intercepts. In this case, the random effect allows each group (or player, in this case) to have a different intercept in the model, while the effects of the other variables remain fixed. The code below creates the&nbsp;<code>m1</code>&nbsp;model with&nbsp;<code>pp60</code>&nbsp;as the response variable,&nbsp;<code>position</code>&nbsp;and&nbsp;<code>toi</code>&nbsp;as the fixed effects, and&nbsp;<code>(1 | player)</code>&nbsp;as the random effect for the intercept. The&nbsp;<code>|</code>&nbsp;is just a special interaction to make sure that the model has different effects for each level of the grouping factor (in this case, for each player).</p>
+<div class="cell">
+<div class="sourceCode" id="cb24"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    pp60 <span class="sc">~</span> position <span class="sc">+</span> toi <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> player),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>Linear mixed model fit by REML ['lmerMod']
+Formula: pp60 ~ position + toi + (1 | player)
+   Data: df
+
+REML criterion at convergence: 115.9
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.1327 -0.4468 -0.1237  0.3489  3.0031 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ player   (Intercept) 0.4126   0.6423  
+ Residual             0.1192   0.3452  
+Number of obs: 80, groups:  player, 20
+
+Fixed effects:
+            Estimate Std. Error t value
+(Intercept) -0.16546    0.58054  -0.285
+positionF    1.48931    0.31861   4.674
+toi          0.06254    0.02531   2.471
+
+Correlation of Fixed Effects:
+          (Intr) postnF
+positionF -0.573       
+toi       -0.932  0.358</code></pre>
+</div>
+</div>
+<section id="view-individual-random-effects" class="level3" data-number="3.0.1">
+<h3 data-number="3.0.1" class="anchored" data-anchor-id="view-individual-random-effects"><span class="header-section-number">3.0.1</span> View Individual Random Effects</h3>
+<div class="cell">
+<div class="sourceCode" id="cb26"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ranef</span>(m1) <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">grpvar</th>
+<th style="text-align: left;">term</th>
+<th style="text-align: left;">grp</th>
+<th style="text-align: right;">condval</th>
+<th style="text-align: right;">condsd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Andy Greene</td>
+<td style="text-align: right;">-0.3922248</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Auston Matthews</td>
+<td style="text-align: right;">0.9550296</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Brett Pesce</td>
+<td style="text-align: right;">-0.1144402</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Calle Jarnkrok</td>
+<td style="text-align: right;">-0.5214549</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Connor Brown</td>
+<td style="text-align: right;">-0.6018354</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Connor McDavid</td>
+<td style="text-align: right;">1.5091598</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Esa Lindell</td>
+<td style="text-align: right;">-0.3970716</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Garnet Hathaway</td>
+<td style="text-align: right;">-0.5542113</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Jason Spezza</td>
+<td style="text-align: right;">0.1923681</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Neal Pionk</td>
+<td style="text-align: right;">0.1609786</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Nick Foligno</td>
+<td style="text-align: right;">-0.9306865</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Nick Jensen</td>
+<td style="text-align: right;">-0.2441537</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Oliver Bjorkstrand</td>
+<td style="text-align: right;">0.0879642</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Radko Gudas</td>
+<td style="text-align: right;">-0.1441408</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Roman Josi</td>
+<td style="text-align: right;">0.6206141</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Sam Reinhart</td>
+<td style="text-align: right;">0.0780850</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Thomas Chabot</td>
+<td style="text-align: right;">0.0850422</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Torey Krug</td>
+<td style="text-align: right;">0.8539466</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Yanni Gourde</td>
+<td style="text-align: right;">-0.2144187</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Zdeno Chara</td>
+<td style="text-align: right;">-0.4285505</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="running-with-tidymodels" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Running with Tidymodels</h1>
+<section id="build-model" class="level3" data-number="4.0.1">
+<h3 data-number="4.0.1" class="anchored" data-anchor-id="build-model"><span class="header-section-number">4.0.1</span> Build Model</h3>
+<div class="cell">
+<div class="sourceCode" id="cb27"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>lmer_spec <span class="ot">&lt;-</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">linear_reg</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lmer"</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>using_tidymodels <span class="ot">&lt;-</span> </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  lmer_spec <span class="sc">|&gt;</span> </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    pp60 <span class="sc">~</span> position <span class="sc">+</span> toi <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> player),</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>using_tidymodels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>parsnip model object
+
+Linear mixed model fit by REML ['lmerMod']
+Formula: pp60 ~ position + toi + (1 | player)
+   Data: data
+REML criterion at convergence: 115.8825
+Random effects:
+ Groups   Name        Std.Dev.
+ player   (Intercept) 0.6423  
+ Residual             0.3452  
+Number of obs: 80, groups:  player, 20
+Fixed Effects:
+(Intercept)    positionF          toi  
+   -0.16546      1.48931      0.06254  </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode" id="cb29"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>lme4<span class="sc">::</span><span class="fu">ranef</span>(using_tidymodels<span class="sc">$</span>fit) <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">grpvar</th>
+<th style="text-align: left;">term</th>
+<th style="text-align: left;">grp</th>
+<th style="text-align: right;">condval</th>
+<th style="text-align: right;">condsd</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Andy Greene</td>
+<td style="text-align: right;">-0.3922248</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Auston Matthews</td>
+<td style="text-align: right;">0.9550296</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Brett Pesce</td>
+<td style="text-align: right;">-0.1144402</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Calle Jarnkrok</td>
+<td style="text-align: right;">-0.5214549</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Connor Brown</td>
+<td style="text-align: right;">-0.6018354</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Connor McDavid</td>
+<td style="text-align: right;">1.5091598</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Esa Lindell</td>
+<td style="text-align: right;">-0.3970716</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Garnet Hathaway</td>
+<td style="text-align: right;">-0.5542113</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Jason Spezza</td>
+<td style="text-align: right;">0.1923681</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Neal Pionk</td>
+<td style="text-align: right;">0.1609786</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Nick Foligno</td>
+<td style="text-align: right;">-0.9306865</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Nick Jensen</td>
+<td style="text-align: right;">-0.2441537</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Oliver Bjorkstrand</td>
+<td style="text-align: right;">0.0879642</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Radko Gudas</td>
+<td style="text-align: right;">-0.1441408</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Roman Josi</td>
+<td style="text-align: right;">0.6206141</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Sam Reinhart</td>
+<td style="text-align: right;">0.0780850</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Thomas Chabot</td>
+<td style="text-align: right;">0.0850422</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Torey Krug</td>
+<td style="text-align: right;">0.8539466</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Yanni Gourde</td>
+<td style="text-align: right;">-0.2144187</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">player</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">Zdeno Chara</td>
+<td style="text-align: right;">-0.4285505</td>
+<td style="text-align: right;">0.1666845</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="more-applications" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> More Applications</h1>
+<p>This particular example is focused on longitudinal data, but mixed effects models are useful whenever there’s&nbsp;<em>any</em>&nbsp;kind of clustering effect where the group is likely affecting the outcome. These effects can even be nested (e.g., studying test scores within schools that are within districts). Generally if the data has some sort of nested/hierarchical structure, that’s when you’ll start to see the “multilevel model” terminology, although the principles are the same.</p>
+<p>More details on those multilevel models are available at the links below, but the model formulas would be very similar. If you have nested groups, a random effect structured like&nbsp;<code>(1 | v1 / v2)</code>&nbsp;would mean intercepts varying among v1&nbsp;<em>and</em>&nbsp;v2&nbsp;<em>within</em>&nbsp;v1.</p>
+<p>If it’s not apparently obvious, how can you tell if your data is clustered? You can start by plotting it! The data behind our example is plotted below. Each color in the plot is a different player, and just by a little manual inspection, we can see that the data appears to be clustered.</p>
+<section id="viz-showing-clusters" class="level3" data-number="5.0.1">
+<h3 data-number="5.0.1" class="anchored" data-anchor-id="viz-showing-clusters"><span class="header-section-number">5.0.1</span> Viz Showing Clusters</h3>
+<div class="cell">
+<div class="sourceCode" id="cb30"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  df, </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> toi, </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> pp60,</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> player</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(<span class="sc">~</span> position) <span class="sc">+</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="01_mixed_effects_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>You can also investigate clustering by creating a simple null model, which only has the intercept and the random effect. The&nbsp;<code>summ</code>&nbsp;function within the&nbsp;<code>jtools</code>&nbsp;package will helpfully provide the ICC, or intraclass correlation coefficient, which can help identify clustering. This data has a value of 0.89, which is quite high and good evidence that a mixed effects model is necessary here.</p>
+<div class="cell">
+<div class="sourceCode" id="cb31"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>m0 <span class="ot">&lt;-</span> </span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    pp60 <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> player),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> df</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  ) </span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>jtools<span class="sc">::</span><span class="fu">summ</span>(m0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-stdout">
+<pre><code>MODEL INFO:
+Observations: 80
+Dependent Variable: pp60
+Type: Mixed effects linear regression 
+
+MODEL FIT:
+AIC = 130.78, BIC = 137.93
+Pseudo-R² (fixed effects) = 0.00
+Pseudo-R² (total) = 0.89 
+
+FIXED EFFECTS:
+-------------------------------------------------------
+                    Est.   S.E.   t val.    d.f.      p
+----------------- ------ ------ -------- ------- ------
+(Intercept)         1.78   0.22     8.10   19.00   0.00
+-------------------------------------------------------
+
+p values calculated using Kenward-Roger standard errors and d.f.
+
+RANDOM EFFECTS:
+------------------------------------
+  Group      Parameter    Std. Dev. 
+---------- ------------- -----------
+  player    (Intercept)     0.97    
+ Residual                   0.34    
+------------------------------------
+
+Grouping variables:
+--------------------------
+ Group    # groups   ICC  
+-------- ---------- ------
+ player      20      0.89 
+--------------------------</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="varying-slopes" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Varying Slopes</h1>
+<p>The simple example above used a varying intercept, where each player (our random effect) had an adjustment to the overall intercept. But more complexity can be added to a mixed effects model by also incorporating random slopes, which would allow the effect of the selected variable(s) to vary across subjects.</p>
+<p>If, for example, we wanted to incorporate an&nbsp;<code>age</code>&nbsp;variable into our model and we wanted the influence of that variable to vary by player, it would be incorporated like so, before the&nbsp;<code>| player</code>:</p>
+<pre><code>m_slope &lt;- lmer(pp60 ~ position + toi + (1 + age | player), 
+                data = df)</code></pre>
+<p>Those resulting random effects would be available just like with the intercepts, by using&nbsp;<code>ranef(m_slope)</code>.</p>
+</section>
+<section id="resources" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Resources</h1>
+</section>
+<section id="this-was-intended-to-be-a-beginners-guide-to-mixed-effects-modeling-with-a-simple-example.-for-more-details-both-technical-and-theoretical-i-found-all-of-the-following-resources-helpful" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> This was intended to be a beginner’s guide to mixed effects modeling with a simple example. For more details, both technical and theoretical, I found all of the following resources helpful:</h1>
+<ul>
+<li><p><a href="http://mfviz.com/hierarchical-models/">An interactive visualization</a>: particularly useful for understanding random intercepts vs.&nbsp;slopes</p></li>
+<li><p><a href="https://bookdown.org/roback/bookdown-BeyondMLR/">Beyond multiple linear regression</a>: especially chapters 8 &amp; 9, lots of examples and good interpretation notes</p></li>
+<li><p><a href="https://m-clark.github.io/mixed-models-with-R/introduction.html">Mixed models with R</a>: great online book</p></li>
+<li><p><a href="https://bookdown.org/steve_midway/DAR/random-effects.html">Ch. 9 of Data Analysis in R</a>: useful for theory</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf"><code>lme4</code>&nbsp;vignette</a>: pretty technical but helpful formulas in table 2</p></li>
+<li><p><a href="https://www.lcampanelli.org/mixed-effects-modeling-lme4/">Introduction to mixed effects modeling</a>: useful walkthrough</p></li>
+<li><p><a href="https://ourcodingclub.github.io/tutorials/mixed-models/">Introduction to linear mixed models</a>: good tutorial</p></li>
+<li><p><a href="https://www.youtube.com/watch?v=8r9bUKUVecc&amp;ab_channel=MikeCrowson">A video on multilevel modeling with lme4</a><br>
+</p></li>
+</ul>
+</section>
+</main>
+<!-- /main column -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    setTimeout(function() {
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+</body></html>
